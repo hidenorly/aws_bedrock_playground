@@ -86,6 +86,7 @@ if __name__=="__main__":
     parser.add_argument('-s', '--secretKey', action='store', default=os.getenv('AWS_SECRET_ACCESS_KEY'), help='specify your secret key or set it .aws/credential or set in AWS_SECRET_ACCESS_KEY')
     parser.add_argument('-r', '--region', action='store', default="us-west-2", help='specify region')
     parser.add_argument('-m', '--model', action='store', default="anthropic.claude-3-sonnet-20240229-v1:0", help='specify model')
+    parser.add_argument('-x', '--maxTokens', action='store', type=int, default=50000, help='specify maximum output tokens')
     parser.add_argument('-a', '--systemprompt', action='store', default=None, help='specify system prompt if necessary')
     parser.add_argument('-p', '--prompt', action='store', default=None, help='specify prompt')
     args = parser.parse_args()
@@ -105,7 +106,7 @@ if __name__=="__main__":
         user_prompt = str(args.prompt)+"\n"+additional_prompt
 
     logger = logging.getLogger(__name__)
-    #logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO)
     status = None
 
     try:
@@ -125,6 +126,8 @@ if __name__=="__main__":
             model_id = args.model
 
             max_tokens = 50000
+            if args.maxTokens:
+                max_tokens = args.maxTokens
             user_message = {
                 "role": "user",
                 "content": [
