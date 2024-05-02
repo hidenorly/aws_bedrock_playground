@@ -30,6 +30,22 @@ def files_reader(files):
 
     return result
 
+
+def read_prompt_json(path):
+    system_prompt = None
+    user_prompt = None
+
+    if os.path.isfile(path):
+        with open(path, 'r', encoding='UTF-8') as f:
+          _result = json.load(f)
+          if "system_prompt" in _result:
+            system_prompt = _result["system_prompt"]
+          if "user_prompt" in _result:
+            user_prompt = _result["user_prompt"]
+
+    return system_prompt, user_prompt
+
+
 def generate_message(bedrock_runtime, model_id, system_prompt, messages, max_tokens):
     """
     Generate a message response from the Anthropic Bedrock model.
@@ -88,7 +104,9 @@ if __name__=="__main__":
     parser.add_argument('-m', '--model', action='store', default="anthropic.claude-3-sonnet-20240229-v1:0", help='specify model')
     parser.add_argument('-x', '--maxTokens', action='store', type=int, default=50000, help='specify maximum output tokens')
     parser.add_argument('-a', '--systemprompt', action='store', default=None, help='specify system prompt if necessary')
-    parser.add_argument('-p', '--prompt', action='store', default=None, help='specify prompt')
+    parser.add_argument('-u', '--prompt', action='store', default=None, help='specify prompt')
+    parser.add_argument('-p', '--promptfile', action='store', default=None, help='specify prompt.json')
+
     args = parser.parse_args()
 
     additional_prompt = ""
@@ -97,13 +115,15 @@ if __name__=="__main__":
     else:
         additional_prompt = sys.stdin.read()
 
-    system_prompt = None
+    system_prompt, user_prompt = read_prompt_json(args.promptfile)
+
     if args.systemprompt is not None:
         system_prompt = args.systemprompt
 
-    user_prompt = None
     if args.prompt is not None:
         user_prompt = str(args.prompt)+"\n"+additional_prompt
+
+    user_prompt = user_prompt + "\n" +additional_prompt
 
     logger = logging.getLogger(__name__)
     logging.basicConfig(level=logging.INFO)
