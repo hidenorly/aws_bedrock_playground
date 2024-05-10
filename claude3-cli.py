@@ -121,7 +121,7 @@ if __name__=="__main__":
         system_prompt = args.systemprompt
 
     if args.prompt is not None:
-        user_prompt = str(args.prompt)+"\n"+additional_prompt
+        user_prompt = str(args.prompt)
 
     user_prompt = user_prompt + "\n" +additional_prompt
 
